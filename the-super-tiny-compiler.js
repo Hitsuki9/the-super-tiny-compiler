@@ -112,6 +112,12 @@
  *
  * 3. *Code Generation* takes the transformed representation of the code and
  *    turns it into new code.
+ * 
+ * 译：
+ * 大多数编译器分为三个主要阶段：解析，转换和代码生成
+ * 1. 解析阶段获取原始代码，并将其转换为抽象的表示（注：抽象语法树）。
+ * 2. 转换阶段操作解析得到的抽象表示，使其转换为编译器需要的表示形式。
+ * 3. 代码生成阶段将转换阶段得到的表示形式转换为新代码。
  */
 
 /**
@@ -178,6 +184,51 @@
  *       }]
  *     }]
  *   }
+ * 
+ * 译：
+ * 解析
+ * ------
+ * 解析通常分为两个阶段：词法分析和句法分析。
+ * 1. 词法分析阶段提取原始代码，并使用词法分析器（lexer）将其拆分为多个标记（tokens）。
+ *    标记是一个描述了句法中的一块独立代码片段的包含多个对象的数组。它们可以是数字，标签，标点符号，运算符等等。
+ * 2. 句法分析阶段得到标记，并将其重新格式化为描述语法的每个部分及它们间的关系的表示形式，这就称为抽象语法树。
+ *    抽象语法树（AST）是一个深层嵌套的对象，其以一个易于使用的形式来表示代码，并可以告诉我们很多信息。
+ * 
+ * 对于以下语法：
+ * (add 2 (subtract 4 2))
+ * 标记可能看起来像这样：
+ * [
+ *   { type: 'paren',  value: '('        },
+ *   { type: 'name',   value: 'add'      },
+ *   { type: 'number', value: '2'        },
+ *   { type: 'name',   value: 'subtract' },
+ *   { type: 'number', value: '4'        },
+ *   { type: 'number', value: '2'        },
+ *   { type: 'paren',  value: ')'        },
+ *   { type: 'paren',  value: ')'        }
+ * ]
+ * 而抽象语法树可能看起来像这样：
+ * {
+ *   type: 'Program',
+ *   body: [{
+ *     type: 'CallExpression',
+ *     name: 'add',
+ *     params: [{
+ *       type: 'NumberLiteral',
+ *       value: '2',
+ *     }, {
+ *       type: 'CallExpression',
+ *       name: 'subtract',
+ *       params: [{
+ *         type: 'NumberLiteral',
+ *         value: '4',
+ *       }, {
+ *         type: 'NumberLiteral',
+ *         value: '2',
+ *       }]
+ *     }]
+ *   }]
+ * }
  */
 
 /**
@@ -321,6 +372,11 @@
  *       exit(node, parent) {},
  *     }
  *   };
+ * 
+ * 译：
+ * 转换
+ * ------
+ * TODO
  */
 
 /**
