@@ -201,6 +201,7 @@
  *   { type: 'paren',  value: '('        },
  *   { type: 'name',   value: 'add'      },
  *   { type: 'number', value: '2'        },
+ *   { type: 'paren',  value: '('        },
  *   { type: 'name',   value: 'subtract' },
  *   { type: 'number', value: '4'        },
  *   { type: 'number', value: '2'        },
@@ -381,7 +382,108 @@
  * 
  * 下面来看一下如何转换抽象语法树。
  * 
- * TODO
+ * 你可能会注意到抽象语法树中包含着看起来非常相似的元素。这些元素都是具有 type 属性的对象，它们被称为 AST 节点。
+ * 这些节点在其上定义了描述一个抽象语法树中一块独立部分的属性。
+ * 
+ * 我们可以为数字字面量（NumberLiteral）创建一个节点：
+ * {
+ *   type: 'NumberLiteral',
+ *   value: '2'
+ * }
+ * 或者可以为调用表达式（CallExpression）创建一个节点：
+ * {
+ *   type: 'CallExpression',
+ *   name: 'subtract',
+ *   params: [...nested nodes go here（嵌套的节点）...]
+ * }
+ * 
+ * 转换抽象语法树时，我们可以通过添加/删除/替换属性来操作节点，
+ * 也可以添加新节点，删除节点，
+ * 甚至可以不使用现有的抽象语法树，而是基于此创建一个全新抽象语法树。
+ * 
+ * 由于我们的编译结果是一个新语言，因此我们将重点放在创建一种特定于目标语言的全新 AST。
+ * 
+ * 遍历
+ * ------
+ * 为了浏览所有的节点，我们需要遍历它们。
+ * 此过程将以深度优先的方式遍历到 AST 中的每个节点。
+ * {
+ *   type: 'Program',
+ *   body: [{
+ *     type: 'CallExpression',
+ *     name: 'add',
+ *     params: [{
+ *       type: 'NumberLiteral',
+ *       value: '2',
+ *     }, {
+ *       type: 'CallExpression',
+ *       name: 'subtract',
+ *       params: [{
+ *         type: 'NumberLiteral',
+ *         value: '4',
+ *       }, {
+ *         type: 'NumberLiteral',
+ *         value: '2',
+ *       }]
+ *     }]
+ *   }]
+ * }
+ * 对于上面的 AST，将如此遍历：
+ * 1. Program - 从 AST 的顶层开始
+ * 2. CallExpression (add) - 转到 Program 的 body 的第一个元素
+ * 3. NumberLiteral (2) - 转到 CallExpression 的 params 的第一个元素
+ * 4. CallExpression (subtract) - 转到 CallExpression 的 params 的第二个元素
+ * 5. NumberLiteral (4) - 转到 CallExpression 的 params 的第一个元素
+ * 6. NumberLiteral (2) - 转到 CallExpression 的 params 的第二个元素
+ * 
+ * 如果我们直接操作此 AST，而不是创建单独的 AST，将会牵扯到各种的抽象。
+ * 但是只是访问树中的每个节点就足以满足我们的需求了。
+ * 
+ * 使用“访问”一词的原因是因为这种方式可以表示对对象结构的元素进行了操作。
+ * 
+ * 访问器
+ * ------
+ * 这里的基本思想是我们将创建一个“访问器”对象，该对象具有接受不同节点类型的方法。
+ * var = visitor = {
+ *   NumberLiteral() {},
+ *   CallExpression() {}
+ * };
+ * 遍历 AST 时，只需要调用访问器上对应的方法。
+ * 我们还需将当前节点和其父节点的引用作为参数传入。
+ * var = visitor = {
+ *   NumberLiteral(node, parent) {},
+ *   CallExpression(node, parent) {}
+ * };
+ * 
+ * 但是，也有可能是在“退出”节点时调用方法，想像一下上面树结构的列表形式：
+ * - Program
+ *   - CallExpression
+ *     - NumberLiteral
+ *     - CallExpression
+ *       - NumberLiteral
+ *       - NumberLiteral
+ * 当我们往下遍历树时，必然将会到达某个分支的末尾，当我们完成树的每个分支时，我们将会“退出”它。
+ * 因此，从树上遍历下来，我们“进入”到每个节点，然后又“退出”。
+ * -> Program (enter)
+ *   -> CallExpression (enter)
+ *     -> Number Literal (enter)
+ *     <- Number Literal (exit)
+ *     -> Call Expression (enter)
+ *       -> Number Literal (enter)
+ *       <- Number Literal (exit)
+ *       -> Number Literal (enter)
+ *       <- Number Literal (exit)
+ *     <- CallExpression (exit)
+ *   <- CallExpression (exit)
+ * <- Program (exit)
+ * 
+ * 为了支持这一点，我们的访问器最终将如下所示：
+ * var visitor = {
+ *   NumberLiteral: {
+ *     enter(node, parent) {},
+ *     exit(node, parent) {}
+ *   }
+ * };
  */
 
 /**
@@ -400,6 +502,19 @@
  * Effectively our code generator will know how to “print” all of the different
  * node types of the AST, and it will recursively call itself to print nested
  * nodes until everything is printed into one long string of code.
+ * 
+ * 译：
+ * 代码生成
+ * ------
+ * 编译器的最后阶段是代码生成。
+ * 有时候，编译器会执行和转换阶段相重叠的操作，但在大多数情况下，代码生成只是意味着将 AST 转换回字符串化的代码。
+ * 
+ * 代码生成器以几种不同的方式进行工作，某些编译器将重用较早时候的标记（tokens），
+ * 另一些编译器将创建一种另外的代码表示形式，以便可以线性地打印节点，
+ * 但据我所知，大多数将使用我们刚刚创建的 AST，这是需要我们重点关注的。
+ * 
+ * 
+ * TODO
  */
 
 /**
