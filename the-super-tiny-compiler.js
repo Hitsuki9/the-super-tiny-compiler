@@ -540,7 +540,7 @@
  * 编译器有许多不同的用途，它们可能需要比我描述的更加详细的步骤。
  * 但是现在你应该对大多数的编译器长什么样有了一个大致的了解。
  * 
- * 我已经解释了所有这些内容，您现在可以自行编写属于自己的编译器了对吗？
+ * 我已经解释了所有这些内容，你现在可以自行编写属于自己的编译器了对吗？
  * 开个玩笑，这就是我在这里将要帮助你的地方 :p
  * 让我们开始吧...
  */
@@ -573,7 +573,7 @@
 function tokenizer(input) {
 
   // A `current` variable for tracking our position in the code like a cursor.
-  // 译：一个“current”变量，用于像光标一样追踪我们在代码中的位置。
+  // 译：一个“current”变量，用于像游标一样追踪我们在代码中的位置。
   let current = 0;
 
   // And a `tokens` array for pushing our tokens to.
@@ -779,33 +779,42 @@ function tokenizer(input) {
  *
  *   [{ type: 'paren', value: '(' }, ...]   =>   { type: 'Program', body: [...] }
  * 
- * TODO
+ * 译：
+ * 对于解析器，我们将使用 tokens 数组，并将其转换为 AST。
+ * [{ type: 'paren', value: '(' }, ...] => { type: 'Program', body: [...] }
  */
 
 // Okay, so we define a `parser` function that accepts our array of `tokens`.
+// 译：定义一个“parser”函数来接收“tokens”数组。
 function parser(tokens) {
 
   // Again we keep a `current` variable that we will use as a cursor.
+  // 译：同样地，维护一个“current”变量，将其用作游标。
   let current = 0;
 
   // But this time we're going to use recursion instead of a `while` loop. So we
   // define a `walk` function.
+  // 译：但是这次我们将使用递归而不是 while 循环。所以我们定义一个 walk 函数。 
   function walk() {
 
     // Inside the walk function we start by grabbing the `current` token.
+    // 译：在 walk 函数内部，我们首先获取“current”标记（token）。
     let token = tokens[current];
 
     // We're going to split each type of token off into a different code path,
     // starting off with `number` tokens.
-    //
+    // 译：从 number 类型的标记（token）开始，将每种类型的标记（token）拆分为不同的代码路径。
     // We test to see if we have a `number` token.
+    // 译：测试一下是否有一个 number 类型的标记（token）。
     if (token.type === 'number') {
 
       // If we have one, we'll increment `current`.
+      // 译：如果有，就增加“current"。
       current++;
 
       // And we'll return a new AST node called `NumberLiteral` and setting its
       // value to the value of our token.
+      // 译：然后返回一个名为 NumberLiteral 的新 AST 节点，并将其 value 设置为标记（token）的 value。
       return {
         type: 'NumberLiteral',
         value: token.value,
@@ -814,6 +823,7 @@ function parser(tokens) {
 
     // If we have a string we will do the same as number and create a
     // `StringLiteral` node.
+    // 译：如果有一个字符串，做与数字相同的操作并创建一个 StringLiteral 节点。
     if (token.type === 'string') {
       current++;
 
@@ -825,6 +835,7 @@ function parser(tokens) {
 
     // Next we're going to look for CallExpressions. We start this off when we
     // encounter an open parenthesis.
+    // 译：接下来，我们将寻找 CallExpressions。当我们遇到一个左括号时，我们就开始构建 CallExpressions 节点。
     if (
       token.type === 'paren' &&
       token.value === '('
@@ -832,11 +843,14 @@ function parser(tokens) {
 
       // We'll increment `current` to skip the parenthesis since we don't care
       // about it in our AST.
+      // 译：增加“current”来跳过括号，因为在 AST 中我们不在意它。
       token = tokens[++current];
 
       // We create a base node with the type `CallExpression`, and we're going
       // to set the name as the current token's value since the next token after
       // the open parenthesis is the name of the function.
+      // 译：创建一个类型为 CallExpression 的节点，
+      // 由于左括号后的下一个标记（token）是函数的名称，因此我们将函数名设置为当前标记（token）的 value。
       let node = {
         type: 'CallExpression',
         name: token.value,
@@ -844,23 +858,26 @@ function parser(tokens) {
       };
 
       // We increment `current` *again* to skip the name token.
+      // 译：再次增加“current”来跳过 name 类型的标记（token）。
       token = tokens[++current];
 
       // And now we want to loop through each token that will be the `params` of
       // our `CallExpression` until we encounter a closing parenthesis.
-      //
+      // 译：现在，我们要遍历将成为 CallExpression 的 params 的每个标记（token），直到遇到右括号为止。
       // Now this is where recursion comes in. Instead of trying to parse a
       // potentially infinitely nested set of nodes we're going to rely on
       // recursion to resolve things.
-      //
+      // 译：这里就用到了递归。与其尝试解析可能无限嵌套的节点集，不如依靠递归来解决问题。
       // To explain this, let's take our Lisp code. You can see that the
       // parameters of the `add` are a number and a nested `CallExpression` that
       // includes its own numbers.
-      //
+      // 译：为了解释这一点，让我们来看看 Lisp 代码。
+      // 你会看到“add”的参数是一个数字和一个嵌套的 CallExpression。
       //   (add 2 (subtract 4 2))
       //
       // You'll also notice that in our tokens array we have multiple closing
       // parenthesis.
+      // 译：你还会注意到，在我们的 tokens 数组中有多个右括号。
       //
       //   [
       //     { type: 'paren',  value: '('        },
@@ -876,35 +893,42 @@ function parser(tokens) {
       //
       // We're going to rely on the nested `walk` function to increment our
       // `current` variable past any nested `CallExpression`.
+      // 译：我们将依靠嵌套的 walk 函数来使递增的 current 变量传递到任何嵌套的 CallExpression 中。
 
       // So we create a `while` loop that will continue until it encounters a
       // token with a `type` of `'paren'` and a `value` of a closing
       // parenthesis.
+      // 译：创建一个 while 循环，该循环将一直持续到遇到一个 paren 类型的标记（token），且它的 value 是右括号。
       while (
         (token.type !== 'paren') ||
         (token.type === 'paren' && token.value !== ')')
       ) {
         // we'll call the `walk` function which will return a `node` and we'll
         // push it into our `node.params`.
+        // 译：调用 walk 函数，该函数将返回节点一个，并将其推入 node.params 中。
         node.params.push(walk());
         token = tokens[current];
       }
 
       // Finally we will increment `current` one last time to skip the closing
       // parenthesis.
+      // 译：最后增加一次“current”以跳过右括号。
       current++;
 
       // And return the node.
+      // 译：然后返回该节点。
       return node;
     }
 
     // Again, if we haven't recognized the token type by now we're going to
     // throw an error.
+    // 译：同样地，如果我们现在还没有识别出标记（token）的类型，那么将抛出一个错误。
     throw new TypeError(token.type);
   }
 
   // Now, we're going to create our AST which will have a root which is a
   // `Program` node.
+  // 译：现在创建 AST，它的根是 Program 节点。
   let ast = {
     type: 'Program',
     body: [],
@@ -912,10 +936,10 @@ function parser(tokens) {
 
   // And we're going to kickstart our `walk` function, pushing nodes to our
   // `ast.body` array.
-  //
+  // 译：调用 walk 函数，将返回的节点推入 ast.body 数组中。
   // The reason we are doing this inside a loop is because our program can have
   // `CallExpression` after one another instead of being nested.
-  //
+  // 译：在循环内执行此操作的原因是因为我们的程序可以一个接一个的拥有 CallExpression 而不是嵌套的。
   //   (add 2 2)
   //   (subtract 4 2)
   //
@@ -924,6 +948,7 @@ function parser(tokens) {
   }
 
   // At the end of our parser we'll return the AST.
+  // 译：在 parser 的最后返回 AST。
   return ast;
 }
 
@@ -938,6 +963,8 @@ function parser(tokens) {
  * So now we have our AST, and we want to be able to visit different nodes with
  * a visitor. We need to be able to call the methods on the visitor whenever we
  * encounter a node with a matching type.
+ * 
+ * TODO
  *
  *   traverse(ast, {
  *     Program: {
