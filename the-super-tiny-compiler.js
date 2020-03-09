@@ -113,11 +113,11 @@
  * 3. *Code Generation* takes the transformed representation of the code and
  *    turns it into new code.
  * 
- * 译：
- * 大多数编译器分为三个主要阶段：解析，转换和代码生成
- * 1. 解析阶段获取原始代码，并将其转换为抽象的表示（注：抽象语法树）。
- * 2. 转换阶段操作解析得到的抽象表示，使其转换为编译器需要的表示形式。
- * 3. 代码生成阶段将转换阶段得到的表示形式转换为新代码。
+ ** 译：
+ ** 大多数编译器分为三个主要阶段：解析，转换和代码生成
+ ** 1. 解析阶段获取原始代码，并将其转换为抽象的表示（注：抽象语法树）。
+ ** 2. 转换阶段操作解析得到的抽象表示，使其转换为编译器需要的表示形式。
+ ** 3. 代码生成阶段将转换阶段得到的表示形式转换为新代码。
  */
 
 /**
@@ -185,51 +185,51 @@
  *     }]
  *   }
  * 
- * 译：
- * 解析
- * ------
- * 解析通常分为两个阶段：词法分析和句法分析。
- * 1. 词法分析阶段提取原始代码，并使用分词器（tokenizer）将其拆分为多个标记（tokens）。
- *    标记是一个描述了句法中的一块独立代码片段的包含多个对象的数组。它们可以是数字，标签，标点符号，运算符等等。
- * 2. 句法分析阶段得到标记，并将其重新格式化为描述语法的每个部分及它们间的关系的表示形式，这就称为抽象语法树。
- *    抽象语法树（AST）是一个深层嵌套的对象，其以一个易于使用的形式来表示代码，并可以告诉我们很多信息。
- * 
- * 对于以下语法：
- * (add 2 (subtract 4 2))
- * 标记可能看起来像这样：
- * [
- *   { type: 'paren',  value: '('        },
- *   { type: 'name',   value: 'add'      },
- *   { type: 'number', value: '2'        },
- *   { type: 'paren',  value: '('        },
- *   { type: 'name',   value: 'subtract' },
- *   { type: 'number', value: '4'        },
- *   { type: 'number', value: '2'        },
- *   { type: 'paren',  value: ')'        },
- *   { type: 'paren',  value: ')'        }
- * ]
- * 而抽象语法树可能看起来像这样：
- * {
- *   type: 'Program',
- *   body: [{
- *     type: 'CallExpression',
- *     name: 'add',
- *     params: [{
- *       type: 'NumberLiteral',
- *       value: '2',
- *     }, {
- *       type: 'CallExpression',
- *       name: 'subtract',
- *       params: [{
- *         type: 'NumberLiteral',
- *         value: '4',
- *       }, {
- *         type: 'NumberLiteral',
- *         value: '2',
- *       }]
- *     }]
- *   }]
- * }
+ ** 译：
+ ** 解析
+ ** ------
+ ** 解析通常分为两个阶段：词法分析和句法分析。
+ ** 1. 词法分析阶段提取原始代码，并使用分词器（tokenizer）将其拆分为多个标记（tokens）。
+ **    标记是一个描述了句法中的一块独立代码片段的包含多个对象的数组。它们可以是数字，标签，标点符号，运算符等等。
+ ** 2. 句法分析阶段得到标记，并将其重新格式化为描述语法的每个部分及它们间的关系的表示形式，这就称为抽象语法树。
+ **    抽象语法树（AST）是一个深层嵌套的对象，其以一个易于使用的形式来表示代码，并可以告诉我们很多信息。
+ ** 
+ ** 对于以下语法：
+ ** (add 2 (subtract 4 2))
+ ** 标记可能看起来像这样：
+ ** [
+ **   { type: 'paren',  value: '('        },
+ **   { type: 'name',   value: 'add'      },
+ **   { type: 'number', value: '2'        },
+ **   { type: 'paren',  value: '('        },
+ **   { type: 'name',   value: 'subtract' },
+ **   { type: 'number', value: '4'        },
+ **   { type: 'number', value: '2'        },
+ **   { type: 'paren',  value: ')'        },
+ **   { type: 'paren',  value: ')'        }
+ ** ]
+ ** 而抽象语法树可能看起来像这样：
+ ** {
+ **   type: 'Program',
+ **   body: [{
+ **     type: 'CallExpression',
+ **     name: 'add',
+ **     params: [{
+ **       type: 'NumberLiteral',
+ **       value: '2',
+ **     }, {
+ **       type: 'CallExpression',
+ **       name: 'subtract',
+ **       params: [{
+ **         type: 'NumberLiteral',
+ **         value: '4',
+ **       }, {
+ **         type: 'NumberLiteral',
+ **         value: '2',
+ **       }]
+ **     }]
+ **   }]
+ ** }
  */
 
 /**
@@ -374,116 +374,116 @@
  *     }
  *   };
  * 
- * 译：
- * 转换
- * ------
- * 编译器的下一个阶段是转换。同样的，这只是对上一步获得的抽象语法树进行更改。
- * 该阶段可以在相同的语言范围内修改抽象语法树，也可以将其翻译成全新的语言。
- * 
- * 下面来看一下如何转换抽象语法树。
- * 
- * 你可能会注意到抽象语法树中包含着看起来非常相似的元素。这些元素都是具有 type 属性的对象，它们被称为 AST 节点。
- * 这些节点在其上定义了描述一个抽象语法树中一块独立部分的属性。
- * 
- * 我们可以为数字字面量（NumberLiteral）创建一个节点：
- * {
- *   type: 'NumberLiteral',
- *   value: '2'
- * }
- * 或者可以为调用表达式（CallExpression）创建一个节点：
- * {
- *   type: 'CallExpression',
- *   name: 'subtract',
- *   params: [...nested nodes go here（嵌套的节点）...]
- * }
- * 
- * 转换抽象语法树时，我们可以通过添加/删除/替换属性来操作节点，
- * 也可以添加新节点，删除节点，
- * 甚至可以不使用现有的抽象语法树，而是基于此创建一个全新抽象语法树。
- * 
- * 由于我们的编译结果是一个新语言，因此我们将重点放在创建一种特定于目标语言的全新 AST。
- * 
- * 遍历
- * ------
- * 为了浏览所有的节点，我们需要遍历它们。
- * 此过程将以深度优先的方式遍历到 AST 中的每个节点。
- * {
- *   type: 'Program',
- *   body: [{
- *     type: 'CallExpression',
- *     name: 'add',
- *     params: [{
- *       type: 'NumberLiteral',
- *       value: '2',
- *     }, {
- *       type: 'CallExpression',
- *       name: 'subtract',
- *       params: [{
- *         type: 'NumberLiteral',
- *         value: '4',
- *       }, {
- *         type: 'NumberLiteral',
- *         value: '2',
- *       }]
- *     }]
- *   }]
- * }
- * 对于上面的 AST，将如此遍历：
- * 1. Program - 从 AST 的顶层开始
- * 2. CallExpression (add) - 转到 Program 的 body 的第一个元素
- * 3. NumberLiteral (2) - 转到 CallExpression 的 params 的第一个元素
- * 4. CallExpression (subtract) - 转到 CallExpression 的 params 的第二个元素
- * 5. NumberLiteral (4) - 转到 CallExpression 的 params 的第一个元素
- * 6. NumberLiteral (2) - 转到 CallExpression 的 params 的第二个元素
- * 
- * 如果我们直接操作此 AST，而不是创建单独的 AST，将会牵扯到各种的抽象。
- * 但是只是访问树中的每个节点就足以满足我们的需求了。
- * 
- * 使用“访问”一词的原因是因为这种方式可以表示对对象结构的元素进行了操作。
- * 
- * 访问器
- * ------
- * 这里的基本思想是我们将创建一个“访问器”对象，该对象具有接受不同节点类型的方法。
- * var = visitor = {
- *   NumberLiteral() {},
- *   CallExpression() {}
- * };
- * 遍历 AST 时，只需要调用访问器上对应的方法。
- * 我们还需将当前节点和其父节点的引用作为参数传入。
- * var = visitor = {
- *   NumberLiteral(node, parent) {},
- *   CallExpression(node, parent) {}
- * };
- * 
- * 但是，也有可能是在“退出”节点时调用方法，想像一下上面树结构的列表形式：
- * - Program
- *   - CallExpression
- *     - NumberLiteral
- *     - CallExpression
- *       - NumberLiteral
- *       - NumberLiteral
- * 当我们往下遍历树时，必然将会到达某个分支的末尾，当我们完成树的每个分支时，我们将会“退出”它。
- * 因此，从树上遍历下来，我们“进入”到每个节点，然后又“退出”。
- * -> Program (enter)
- *   -> CallExpression (enter)
- *     -> Number Literal (enter)
- *     <- Number Literal (exit)
- *     -> Call Expression (enter)
- *       -> Number Literal (enter)
- *       <- Number Literal (exit)
- *       -> Number Literal (enter)
- *       <- Number Literal (exit)
- *     <- CallExpression (exit)
- *   <- CallExpression (exit)
- * <- Program (exit)
- * 
- * 为了支持这一点，我们的访问器最终将如下所示：
- * var visitor = {
- *   NumberLiteral: {
- *     enter(node, parent) {},
- *     exit(node, parent) {}
- *   }
- * };
+ ** 译：
+ ** 转换
+ ** ------
+ ** 编译器的下一个阶段是转换。同样的，这只是对上一步获得的抽象语法树进行更改。
+ ** 该阶段可以在相同的语言范围内修改抽象语法树，也可以将其翻译成全新的语言。
+ ** 
+ ** 下面来看一下如何转换抽象语法树。
+ ** 
+ ** 你可能会注意到抽象语法树中包含着看起来非常相似的元素。这些元素都是具有 type 属性的对象，它们被称为 AST 节点。
+ ** 这些节点在其上定义了描述一个抽象语法树中一块独立部分的属性。
+ ** 
+ ** 我们可以为数字字面量（NumberLiteral）创建一个节点：
+ ** {
+ **   type: 'NumberLiteral',
+ **   value: '2'
+ ** }
+ ** 或者可以为调用表达式（CallExpression）创建一个节点：
+ ** {
+ **   type: 'CallExpression',
+ **   name: 'subtract',
+ **   params: [...nested nodes go here（嵌套的节点）...]
+ ** }
+ ** 
+ ** 转换抽象语法树时，我们可以通过添加/删除/替换属性来操作节点，
+ ** 也可以添加新节点，删除节点，
+ ** 甚至可以不使用现有的抽象语法树，而是基于此创建一个全新抽象语法树。
+ ** 
+ ** 由于我们的编译结果是一个新语言，因此我们将重点放在创建一种特定于目标语言的全新 AST。
+ ** 
+ ** 遍历
+ ** ------
+ ** 为了浏览所有的节点，我们需要遍历它们。
+ ** 此过程将以深度优先的方式遍历到 AST 中的每个节点。
+ ** {
+ **   type: 'Program',
+ **   body: [{
+ **     type: 'CallExpression',
+ **     name: 'add',
+ **     params: [{
+ **       type: 'NumberLiteral',
+ **       value: '2',
+ **     }, {
+ **       type: 'CallExpression',
+ **       name: 'subtract',
+ **       params: [{
+ **         type: 'NumberLiteral',
+ **         value: '4',
+ **       }, {
+ **         type: 'NumberLiteral',
+ **         value: '2',
+ **       }]
+ **     }]
+ **   }]
+ ** }
+ ** 对于上面的 AST，将如此遍历：
+ ** 1. Program - 从 AST 的顶层开始
+ ** 2. CallExpression (add) - 转到 Program 的 body 的第一个元素
+ ** 3. NumberLiteral (2) - 转到 CallExpression 的 params 的第一个元素
+ ** 4. CallExpression (subtract) - 转到 CallExpression 的 params 的第二个元素
+ ** 5. NumberLiteral (4) - 转到 CallExpression 的 params 的第一个元素
+ ** 6. NumberLiteral (2) - 转到 CallExpression 的 params 的第二个元素
+ ** 
+ ** 如果我们直接操作此 AST，而不是创建单独的 AST，将会牵扯到各种的抽象。
+ ** 但是只是访问树中的每个节点就足以满足我们的需求了。
+ ** 
+ ** 使用“访问”一词的原因是因为这种方式可以表示对对象结构的元素进行了操作。
+ ** 
+ ** 访问器
+ ** ------
+ ** 这里的基本思想是我们将创建一个“访问器”对象，该对象具有接受不同节点类型的方法。
+ ** var = visitor = {
+ **   NumberLiteral() {},
+ **   CallExpression() {}
+ ** };
+ ** 遍历 AST 时，只需要调用访问器上对应的方法。
+ ** 我们还需将当前节点和其父节点的引用作为参数传入。
+ ** var = visitor = {
+ **   NumberLiteral(node, parent) {},
+ **   CallExpression(node, parent) {}
+ ** };
+ ** 
+ ** 但是，也有可能是在“退出”节点时调用方法，想像一下上面树结构的列表形式：
+ ** - Program
+ **   - CallExpression
+ **     - NumberLiteral
+ **     - CallExpression
+ **       - NumberLiteral
+ **       - NumberLiteral
+ ** 当我们往下遍历树时，必然将会到达某个分支的末尾，当我们完成树的每个分支时，我们将会“退出”它。
+ ** 因此，从树上遍历下来，我们“进入”到每个节点，然后又“退出”。
+ ** -> Program (enter)
+ **   -> CallExpression (enter)
+ **     -> Number Literal (enter)
+ **     <- Number Literal (exit)
+ **     -> Call Expression (enter)
+ **       -> Number Literal (enter)
+ **       <- Number Literal (exit)
+ **       -> Number Literal (enter)
+ **       <- Number Literal (exit)
+ **     <- CallExpression (exit)
+ **   <- CallExpression (exit)
+ ** <- Program (exit)
+ ** 
+ ** 为了支持这一点，我们的访问器最终将如下所示：
+ ** var visitor = {
+ **   NumberLiteral: {
+ **     enter(node, parent) {},
+ **     exit(node, parent) {}
+ **   }
+ ** };
  */
 
 /**
@@ -503,18 +503,18 @@
  * node types of the AST, and it will recursively call itself to print nested
  * nodes until everything is printed into one long string of code.
  * 
- * 译：
- * 代码生成
- * ------
- * 编译器的最后阶段是代码生成。
- * 有时候，编译器会执行和转换阶段相重叠的操作，但在大多数情况下，代码生成只是意味着将 AST 转换回字符串化的代码。
- * 
- * 代码生成器以几种不同的方式进行工作，某些编译器将重用较早时候的标记（tokens），
- * 另一些编译器将创建一种另外的代码表示形式，以便可以线性地打印节点，
- * 但据我所知，大多数将使用我们刚刚创建的 AST，这是需要我们重点关注的。
- * 
- * 我们的代码生成器将知道如何“打印”所有不同类型的 AST 节点，
- * 而且它将递归调用自身以打印嵌套的节点，直到所有内容都打印成一长串字符串化的代码。
+ ** 译：
+ ** 代码生成
+ ** ------
+ ** 编译器的最后阶段是代码生成。
+ ** 有时候，编译器会执行和转换阶段相重叠的操作，但在大多数情况下，代码生成只是意味着将 AST 转换回字符串化的代码。
+ ** 
+ ** 代码生成器以几种不同的方式进行工作，某些编译器将重用较早时候的标记（tokens），
+ ** 另一些编译器将创建一种另外的代码表示形式，以便可以线性地打印节点，
+ ** 但据我所知，大多数将使用我们刚刚创建的 AST，这是需要我们重点关注的。
+ ** 
+ ** 我们的代码生成器将知道如何“打印”所有不同类型的 AST 节点，
+ ** 而且它将递归调用自身以打印嵌套的节点，直到所有内容都打印成一长串字符串化的代码。
  */
 
 /**
@@ -534,15 +534,15 @@
  *
  * So let's begin...
  * 
- * 译：
- * 这就是一个编译器的所有不同阶段。
- * 这并不是说每个编译器看起来都和我在这里描述的完全一样。
- * 编译器有许多不同的用途，它们可能需要比我描述的更加详细的步骤。
- * 但是现在你应该对大多数的编译器长什么样有了一个大致的了解。
- * 
- * 我已经解释了所有这些内容，你现在可以自行编写属于自己的编译器了对吗？
- * 开个玩笑，这就是我在这里将要帮助你的地方 :p
- * 让我们开始吧...
+ ** 译：
+ ** 这就是一个编译器的所有不同阶段。
+ ** 这并不是说每个编译器看起来都和我在这里描述的完全一样。
+ ** 编译器有许多不同的用途，它们可能需要比我描述的更加详细的步骤。
+ ** 但是现在你应该对大多数的编译器长什么样有了一个大致的了解。
+ ** 
+ ** 我已经解释了所有这些内容，你现在可以自行编写属于自己的编译器了对吗？
+ ** 开个玩笑，这就是我在这里将要帮助你的地方 :p
+ ** 让我们开始吧...
  */
 
 /**
@@ -561,66 +561,66 @@
  *
  *   (add 2 (subtract 4 2))   =>   [{ type: 'paren', value: '(' }, ...]
  * 
- * 译：
- * 我们将从解析的第一阶段词法分析的开始，即使用分词器。
- * 我们只是将我们的代码字符串分解为一个数组标记（tokens）。
- * (add 2 (subtract 4 2)) => [{ type: 'paren', value: '(' }, ...]
+ ** 译：
+ ** 我们将从解析的第一阶段词法分析的开始，即使用分词器。
+ ** 我们只是将我们的代码字符串分解为一个数组标记（tokens）。
+ ** (add 2 (subtract 4 2)) => [{ type: 'paren', value: '(' }, ...]
  */
 
 // We start by accepting an input string of code, and we're gonna set up two
 // things...
-// 译：我们首先接受输入的代码字符串，然后设置两个东西...
+//* 译：我们首先接受输入的代码字符串，然后设置两个东西...
 function tokenizer(input) {
 
   // A `current` variable for tracking our position in the code like a cursor.
-  // 译：一个“current”变量，用于像游标一样追踪我们在代码中的位置。
+  //* 译：一个“current”变量，用于像游标一样追踪我们在代码中的位置。
   let current = 0;
 
   // And a `tokens` array for pushing our tokens to.
-  // 译：还有一个“tokens”数组，用于保存推送过来的标记（tokens）。
+  //* 译：还有一个“tokens”数组，用于保存推送过来的标记（tokens）。
   let tokens = [];
 
   // We start by creating a `while` loop where we are setting up our `current`
   // variable to be incremented as much as we want `inside` the loop.
-  // 译：我们从创建一个 while 循环开始，在该循环中，让我们的 current 变量尽可能多地增加。
+  //* 译：我们从创建一个 while 循环开始，在该循环中，让我们的 current 变量尽可能多地增加。
   // We do this because we may want to increment `current` many times within a
   // single loop because our tokens can be any length.
-  // 译：之所以这样做，是因为我们可能希望在单个循环中多次增加“current”值，因为我们的 tokens 数组可以是任意长度。
+  //* 译：之所以这样做，是因为我们可能希望在单个循环中多次增加“current”值，因为我们的 tokens 数组可以是任意长度。
   while (current < input.length) {
 
     // We're also going to store the `current` character in the `input`.
-    // 译：我们还将存储“input”中“current”位置上的字符。
+    //* 译：我们还将存储“input”中“current”位置上的字符。
     let char = input[current];
 
     // The first thing we want to check for is an open parenthesis. This will
     // later be used for `CallExpression` but for now we only care about the
     // character.
-    // 译：我们要检查的第一项是圆括号。稍后将其用于“CallExpression”，但现在我们只关心字符。
+    //* 译：我们要检查的第一项是圆括号。稍后将其用于“CallExpression”，但现在我们只关心字符。
     // We check to see if we have an open parenthesis:
-    // 译：我们检查是否有一个左括号：
+    //* 译：我们检查是否有一个左括号：
     if (char === '(') {
 
       // If we do, we push a new token with the type `paren` and set the value
       // to an open parenthesis.
-      // 译：如果这样做，我们将推入 tokens 数组一个类型为“paren”的新标记（token），并将它的 value 设置为一个左括号。
+      //* 译：如果这样做，我们将推入 tokens 数组一个类型为“paren”的新标记（token），并将它的 value 设置为一个左括号。
       tokens.push({
         type: 'paren',
         value: '(',
       });
 
       // Then we increment `current`
-      // 译：然后增加 current
+      //* 译：然后增加 current
       current++;
 
       // And we `continue` onto the next cycle of the loop.
-      // 译：并且继续执行下一个循环。
+      //* 译：并且继续执行下一个循环。
       continue;
     }
 
     // Next we're going to check for a closing parenthesis. We do the same exact
     // thing as before: Check for a closing parenthesis, add a new token,
     // increment `current`, and `continue`.
-    // 译：接下来，我们将检查右括号。执行与之前相同的操作：检查右括号，添加新标记（token），递增 current，然后继续。
+    //* 译：接下来，我们将检查右括号。执行与之前相同的操作：检查右括号，添加新标记（token），递增 current，然后继续。
     if (char === ')') {
       tokens.push({
         type: 'paren',
@@ -634,11 +634,11 @@ function tokenizer(input) {
     // because we care that whitespace exists to separate characters, but it
     // isn't actually important for us to store as a token. We would only throw
     // it out later.
-    // 译：接下来，我们要检查空格。这很有趣，因为我们只关心空格是否存在以分隔字符，
-    // 而是否作为标记（token）存储实际上并不重要。我们会在之后将其舍弃。
+    //* 译：接下来，我们要检查空格。这很有趣，因为我们只关心空格是否存在以分隔字符，
+    //* 而是否作为标记（token）存储实际上并不重要。我们会在之后将其舍弃。
     // So here we're just going to test for existence and if it does exist we're
     // going to just `continue` on.
-    // 译：因此，这里我们只是测试其存在性，如果确实存在，我们将继续。
+    //* 译：因此，这里我们只是测试其存在性，如果确实存在，我们将继续。
     let WHITESPACE = /\s/;
     if (WHITESPACE.test(char)) {
       current++;
@@ -654,35 +654,35 @@ function tokenizer(input) {
     //        Only two separate tokens
     //
     // So we start this off when we encounter the first number in a sequence.
-    // 译：下一个标记（token）的类型是 number。这与我们之前看到的有所不同，
-    // 因为数字可以是任意数量的字符，并且我们希望将整个字符序列捕获为一个标记（token）。
-    // (add 123 456)
-    //      ^^^ ^^^
-    // 有六个数字但是仅有两个标记（token）
+    //* 译：下一个标记（token）的类型是 number。这与我们之前看到的有所不同，
+    //* 因为数字可以是任意数量的字符，并且我们希望将整个字符序列捕获为一个标记（token）。
+    //* (add 123 456)
+    //*      ^^^ ^^^
+    //* 有六个数字但是仅有两个标记（token）
     let NUMBERS = /[0-9]/;
     if (NUMBERS.test(char)) {
 
       // We're going to create a `value` string that we are going to push
       // characters to.
-      // 译：我们将创建一个“value”字符串，并将字符推入。
+      //* 译：我们将创建一个“value”字符串，并将字符推入。
       let value = '';
 
       // Then we're going to loop through each character in the sequence until
       // we encounter a character that is not a number, pushing each character
       // that is a number to our `value` and incrementing `current` as we go.
-      // 译：然后我们将遍历字符串中接下去的每一个字符，直到遇到一个不是数字的字符，
-      // 将作为数字的每个字符推入到“value”，并随即增加“current”。
+      //* 译：然后我们将遍历字符串中接下去的每一个字符，直到遇到一个不是数字的字符，
+      //* 将作为数字的每个字符推入到“value”，并随即增加“current”。
       while (NUMBERS.test(char)) {
         value += char;
         char = input[++current];
       }
 
       // After that we push our `number` token to the `tokens` array.
-      // 译：将“number”类型的标记（token）推入到 tokens 数组中。
+      //* 译：将“number”类型的标记（token）推入到 tokens 数组中。
       tokens.push({ type: 'number', value });
 
       // And we continue on.
-      // 译：然后继续。
+      //* 译：然后继续。
       continue;
     }
 
@@ -693,33 +693,33 @@ function tokenizer(input) {
     //            ^^^   ^^^ string tokens
     //
     // We'll start by checking for the opening quote:
-    // 译：我们还将添加对我们的语言的字符串的支持，即被双引号（“）包裹的任何文本。
-    // (concat "foo" "bar")
-    //          ^^^   ^^^ string 类型的标记（token）
-    // 首先检查左引号：
+    //* 译：我们还将添加对我们的语言的字符串的支持，即被双引号（“）包裹的任何文本。
+    //* (concat "foo" "bar")
+    //*          ^^^   ^^^ string 类型的标记（token）
+    //* 首先检查左引号：
     if (char === '"') {
       // Keep a `value` variable for building up our string token.
-      // 译：维护一个“value”变量以构建我们的 string 类型的标记（token）。
+      //* 译：维护一个“value”变量以构建我们的 string 类型的标记（token）。
       let value = '';
 
       // We'll skip the opening double quote in our token.
-      // 译：我们将跳过左引号。
+      //* 译：我们将跳过左引号。
       char = input[++current];
 
       // Then we'll iterate through each character until we reach another
       // double quote.
-      // 译：然后我们将遍历字符串中接下去的每一个字符，直到到达右引号。
+      //* 译：然后我们将遍历字符串中接下去的每一个字符，直到到达右引号。
       while (char !== '"') {
         value += char;
         char = input[++current];
       }
 
       // Skip the closing double quote.
-      // 译：跳过右引号。
+      //* 译：跳过右引号。
       char = input[++current];
 
       // And add our `string` token to the `tokens` array.
-      // 译：将 string 类型的标记（token）推入 tokens 数组。
+      //* 译：将 string 类型的标记（token）推入 tokens 数组。
       tokens.push({ type: 'string', value });
 
       continue;
@@ -732,24 +732,24 @@ function tokenizer(input) {
     //   (add 2 4)
     //    ^^^
     //    Name token
-    // 译：最后一种标记（token）的类型是 name。这是一个字母序列而不是数字，代表 lisp 语法中的函数名。
-    // (add 2 4)
-    //  ^^^
-    // name 类型的标记（token）
+    //* 译：最后一种标记（token）的类型是 name。这是一个字母序列而不是数字，代表 lisp 语法中的函数名。
+    //* (add 2 4)
+    //*  ^^^
+    //* name 类型的标记（token）
     let LETTERS = /[a-z]/i;
     if (LETTERS.test(char)) {
       let value = '';
 
       // Again we're just going to loop through all the letters pushing them to
       // a value.
-      // 译：同样地，我们将遍历接下去的所有字母，将它们推为一个值。
+      //* 译：同样地，我们将遍历接下去的所有字母，将它们推为一个值。
       while (LETTERS.test(char)) {
         value += char;
         char = input[++current];
       }
 
       // And pushing that value as a token with the type `name` and continuing.
-      // 译：将该值作为 name 类型的标记（token）的 value，然后将其推入 tokens 数组并继续循环。
+      //* 译：将该值作为 name 类型的标记（token）的 value，然后将其推入 tokens 数组并继续循环。
       tokens.push({ type: 'name', value });
 
       continue;
@@ -757,12 +757,12 @@ function tokenizer(input) {
 
     // Finally if we have not matched a character by now, we're going to throw
     // an error and completely exit.
-    // 译：最后，如果我们到现在还没有匹配到字符，将抛出一个错误并退出。
+    //* 译：最后，如果我们到现在还没有匹配到字符，将抛出一个错误并退出。
     throw new TypeError('I dont know what this character is: ' + char);
   }
 
   // Then at the end of our `tokenizer` we simply return the tokens array.
-  // 译：在“tokenizer”的结尾简单地返回 tokens 数组。
+  //* 译：在“tokenizer”的结尾简单地返回 tokens 数组。
   return tokens;
 }
 
@@ -779,42 +779,42 @@ function tokenizer(input) {
  *
  *   [{ type: 'paren', value: '(' }, ...]   =>   { type: 'Program', body: [...] }
  * 
- * 译：
- * 对于解析器，我们将使用 tokens 数组，并将其转换为 AST。
- * [{ type: 'paren', value: '(' }, ...] => { type: 'Program', body: [...] }
+ ** 译：
+ ** 对于解析器，我们将使用 tokens 数组，并将其转换为 AST。
+ ** [{ type: 'paren', value: '(' }, ...] => { type: 'Program', body: [...] }
  */
 
 // Okay, so we define a `parser` function that accepts our array of `tokens`.
-// 译：定义一个“parser”函数来接收“tokens”数组。
+//* 译：定义一个“parser”函数来接收“tokens”数组。
 function parser(tokens) {
 
   // Again we keep a `current` variable that we will use as a cursor.
-  // 译：同样地，维护一个“current”变量，将其用作游标。
+  //* 译：同样地，维护一个“current”变量，将其用作游标。
   let current = 0;
 
   // But this time we're going to use recursion instead of a `while` loop. So we
   // define a `walk` function.
-  // 译：但是这次我们将使用递归而不是 while 循环。所以我们定义一个 walk 函数。 
+  //* 译：但是这次我们将使用递归而不是 while 循环。所以我们定义一个 walk 函数。 
   function walk() {
 
     // Inside the walk function we start by grabbing the `current` token.
-    // 译：在 walk 函数内部，我们首先获取“current”标记（token）。
+    //* 译：在 walk 函数内部，我们首先获取“current”标记（token）。
     let token = tokens[current];
 
     // We're going to split each type of token off into a different code path,
     // starting off with `number` tokens.
-    // 译：从 number 类型的标记（token）开始，将每种类型的标记（token）拆分为不同的代码路径。
+    //* 译：从 number 类型的标记（token）开始，将每种类型的标记（token）拆分为不同的代码路径。
     // We test to see if we have a `number` token.
-    // 译：测试一下是否有一个 number 类型的标记（token）。
+    //* 译：测试一下是否有一个 number 类型的标记（token）。
     if (token.type === 'number') {
 
       // If we have one, we'll increment `current`.
-      // 译：如果有，就增加“current"。
+      //* 译：如果有，就增加“current"。
       current++;
 
       // And we'll return a new AST node called `NumberLiteral` and setting its
       // value to the value of our token.
-      // 译：然后返回一个名为 NumberLiteral 的新 AST 节点，并将其 value 设置为标记（token）的 value。
+      //* 译：然后返回一个名为 NumberLiteral 的新 AST 节点，并将其 value 设置为标记（token）的 value。
       return {
         type: 'NumberLiteral',
         value: token.value,
@@ -823,7 +823,7 @@ function parser(tokens) {
 
     // If we have a string we will do the same as number and create a
     // `StringLiteral` node.
-    // 译：如果有一个字符串，做与数字相同的操作并创建一个 StringLiteral 节点。
+    //* 译：如果有一个字符串，做与数字相同的操作并创建一个 StringLiteral 节点。
     if (token.type === 'string') {
       current++;
 
@@ -835,7 +835,7 @@ function parser(tokens) {
 
     // Next we're going to look for CallExpressions. We start this off when we
     // encounter an open parenthesis.
-    // 译：接下来，我们将寻找 CallExpressions。当我们遇到一个左括号时，我们就开始构建 CallExpressions 节点。
+    //* 译：接下来，我们将寻找 CallExpressions。当我们遇到一个左括号时，我们就开始构建 CallExpressions 节点。
     if (
       token.type === 'paren' &&
       token.value === '('
@@ -843,14 +843,14 @@ function parser(tokens) {
 
       // We'll increment `current` to skip the parenthesis since we don't care
       // about it in our AST.
-      // 译：增加“current”来跳过括号，因为在 AST 中我们不在意它。
+      //* 译：增加“current”来跳过括号，因为在 AST 中我们不在意它。
       token = tokens[++current];
 
       // We create a base node with the type `CallExpression`, and we're going
       // to set the name as the current token's value since the next token after
       // the open parenthesis is the name of the function.
-      // 译：创建一个类型为 CallExpression 的节点，
-      // 由于左括号后的下一个标记（token）是函数的名称，因此我们将函数名设置为当前标记（token）的 value。
+      //* 译：创建一个类型为 CallExpression 的节点，
+      //* 由于左括号后的下一个标记（token）是函数的名称，因此我们将函数名设置为当前标记（token）的 value。
       let node = {
         type: 'CallExpression',
         name: token.value,
@@ -858,26 +858,26 @@ function parser(tokens) {
       };
 
       // We increment `current` *again* to skip the name token.
-      // 译：再次增加“current”来跳过 name 类型的标记（token）。
+      //* 译：再次增加“current”来跳过 name 类型的标记（token）。
       token = tokens[++current];
 
       // And now we want to loop through each token that will be the `params` of
       // our `CallExpression` until we encounter a closing parenthesis.
-      // 译：现在，我们要遍历将成为 CallExpression 的 params 的每个标记（token），直到遇到右括号为止。
+      //* 译：现在，我们要遍历将成为 CallExpression 的 params 的每个标记（token），直到遇到右括号为止。
       // Now this is where recursion comes in. Instead of trying to parse a
       // potentially infinitely nested set of nodes we're going to rely on
       // recursion to resolve things.
-      // 译：这里就用到了递归。与其尝试解析可能无限嵌套的节点集，不如依靠递归来解决问题。
+      //* 译：这里就用到了递归。与其尝试解析可能无限嵌套的节点集，不如依靠递归来解决问题。
       // To explain this, let's take our Lisp code. You can see that the
       // parameters of the `add` are a number and a nested `CallExpression` that
       // includes its own numbers.
-      // 译：为了解释这一点，让我们来看看 Lisp 代码。
-      // 你会看到“add”的参数是一个数字和一个嵌套的 CallExpression。
+      //* 译：为了解释这一点，让我们来看看 Lisp 代码。
+      //* 你会看到“add”的参数是一个数字和一个嵌套的 CallExpression。
       //   (add 2 (subtract 4 2))
       //
       // You'll also notice that in our tokens array we have multiple closing
       // parenthesis.
-      // 译：你还会注意到，在我们的 tokens 数组中有多个右括号。
+      //* 译：你还会注意到，在我们的 tokens 数组中有多个右括号。
       //
       //   [
       //     { type: 'paren',  value: '('        },
@@ -893,42 +893,42 @@ function parser(tokens) {
       //
       // We're going to rely on the nested `walk` function to increment our
       // `current` variable past any nested `CallExpression`.
-      // 译：我们将依靠嵌套的 walk 函数来使递增的 current 变量传递到任何嵌套的 CallExpression 中。
+      //* 译：我们将依靠嵌套的 walk 函数来使递增的 current 变量传递到任何嵌套的 CallExpression 中。
 
       // So we create a `while` loop that will continue until it encounters a
       // token with a `type` of `'paren'` and a `value` of a closing
       // parenthesis.
-      // 译：创建一个 while 循环，该循环将一直持续到遇到一个 paren 类型的标记（token），且它的 value 是右括号。
+      //* 译：创建一个 while 循环，该循环将一直持续到遇到一个 paren 类型的标记（token），且它的 value 是右括号。
       while (
         (token.type !== 'paren') ||
         (token.type === 'paren' && token.value !== ')')
       ) {
         // we'll call the `walk` function which will return a `node` and we'll
         // push it into our `node.params`.
-        // 译：调用 walk 函数，该函数将返回节点一个，并将其推入 node.params 中。
+        //* 译：调用 walk 函数，该函数将返回节点一个，并将其推入 node.params 中。
         node.params.push(walk());
         token = tokens[current];
       }
 
       // Finally we will increment `current` one last time to skip the closing
       // parenthesis.
-      // 译：最后增加一次“current”以跳过右括号。
+      //* 译：最后增加一次“current”以跳过右括号。
       current++;
 
       // And return the node.
-      // 译：然后返回该节点。
+      //* 译：然后返回该节点。
       return node;
     }
 
     // Again, if we haven't recognized the token type by now we're going to
     // throw an error.
-    // 译：同样地，如果我们现在还没有识别出标记（token）的类型，那么将抛出一个错误。
+    //* 译：同样地，如果我们现在还没有识别出标记（token）的类型，那么将抛出一个错误。
     throw new TypeError(token.type);
   }
 
   // Now, we're going to create our AST which will have a root which is a
   // `Program` node.
-  // 译：现在创建 AST，它的根是 Program 节点。
+  //* 译：现在创建 AST，它的根是 Program 节点。
   let ast = {
     type: 'Program',
     body: [],
@@ -936,10 +936,10 @@ function parser(tokens) {
 
   // And we're going to kickstart our `walk` function, pushing nodes to our
   // `ast.body` array.
-  // 译：调用 walk 函数，将返回的节点推入 ast.body 数组中。
+  //* 译：调用 walk 函数，将返回的节点推入 ast.body 数组中。
   // The reason we are doing this inside a loop is because our program can have
   // `CallExpression` after one another instead of being nested.
-  // 译：在循环内执行此操作的原因是因为我们的程序可以一个接一个的拥有 CallExpression 而不是嵌套的。
+  //* 译：在循环内执行此操作的原因是因为我们的程序可以一个接一个的拥有 CallExpression 而不是嵌套的。
   //   (add 2 2)
   //   (subtract 4 2)
   //
@@ -948,7 +948,7 @@ function parser(tokens) {
   }
 
   // At the end of our parser we'll return the AST.
-  // 译：在 parser 的最后返回 AST。
+  //* 译：在 parser 的最后返回 AST。
   return ast;
 }
 
@@ -964,7 +964,9 @@ function parser(tokens) {
  * a visitor. We need to be able to call the methods on the visitor whenever we
  * encounter a node with a matching type.
  * 
- * TODO
+ ** 译：
+ ** 现在我们有了 AST，我们希望能够通过访问器来访问不同的节点。
+ ** 每当遇到匹配类型的节点时，我们都可以调用访问器上的方法。
  *
  *   traverse(ast, {
  *     Program: {
@@ -998,10 +1000,12 @@ function parser(tokens) {
 
 // So we define a traverser function which accepts an AST and a
 // visitor. Inside we're going to define two functions...
+//* 译：因此我们定义了一个接受 AST 和访问器的 traverser 函数。在其内部，我们定义了两个函数...
 function traverser(ast, visitor) {
 
   // A `traverseArray` function that will allow us to iterate over an array and
   // call the next function that we will define: `traverseNode`.
+  //* 译：一个 traverseArray 函数将允许我们遍历一个数组并调用我们定义的下一个函数：traverseNode。
   function traverseArray(array, parent) {
     array.forEach(child => {
       traverseNode(child, parent);
@@ -1010,19 +1014,23 @@ function traverser(ast, visitor) {
 
   // `traverseNode` will accept a `node` and its `parent` node. So that it can
   // pass both to our visitor methods.
+  //* 译：traverseNode 接受一个节点和它的父节点。这样它就可以同时将它们传递给访问器方法。
   function traverseNode(node, parent) {
 
     // We start by testing for the existence of a method on the visitor with a
     // matching `type`.
+    //* 译：首先测试访问器上是否存在与节点类型相匹配的方法。
     let methods = visitor[node.type];
 
     // If there is an `enter` method for this node type we'll call it with the
     // `node` and its `parent`.
+    //* 译：如果此节点类型有一个 enter 方法，则将以当前节点及其父节点作为参数调用它。
     if (methods && methods.enter) {
       methods.enter(node, parent);
     }
 
     // Next we are going to split things up by the current node type.
+    //* 译：接下来，根据当前节点类型拆分逻辑。
     switch (node.type) {
 
       // We'll start with our top level `Program`. Since Program nodes have a
